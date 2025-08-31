@@ -31,32 +31,32 @@ function DataCollectionContent() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
-    if (!companyUrl.trim()) {
-      alert('Please enter your company URL')
-      return
-    }
-
+    // Company URL is now optional - removed validation
     setIsLoading(true)
 
     try {
-      // TODO: Replace with your actual ngrok URL when ready
-      const response = await fetch('/api/scrape', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          companyUrl: companyUrl.trim(),
-          linkedinUrl: linkedinUrl.trim(),
-          userId: userId,
-          name: name
-        }),
-      })
+      // Only call scraping if there's a company URL
+      if (companyUrl.trim()) {
+        const response = await fetch('/api/scrape', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            companyUrl: companyUrl.trim(),
+            linkedinUrl: linkedinUrl.trim(),
+            userId: userId,
+            name: name
+          }),
+        })
 
-      if (response.ok) {
-        console.log('✅ Scraping initiated successfully')
+        if (response.ok) {
+          console.log('✅ Scraping initiated successfully')
+        } else {
+          console.log('⚠️  Scraping failed, but continuing to Step 2')
+        }
       } else {
-        console.log('⚠️  Scraping failed, but continuing to Step 2')
+        console.log('⚠️  No company URL provided, skipping scraping')
       }
     } catch (error) {
       console.error('Error triggering scraping:', error)
@@ -114,7 +114,7 @@ function DataCollectionContent() {
               <div className="space-y-2">
                 <Label htmlFor="companyUrl" className="flex items-center gap-2">
                   <Globe className="h-4 w-4" />
-                  Company Website URL
+                  Company Website URL (Optional)
                 </Label>
                 <Input
                   id="companyUrl"
@@ -122,11 +122,10 @@ function DataCollectionContent() {
                   placeholder="https://your-company.com"
                   value={companyUrl}
                   onChange={(e) => setCompanyUrl(e.target.value)}
-                  required
                   className="text-base"
                 />
                 <p className="text-sm text-gray-600">
-                  We'll analyze your company website to understand your business better
+                  We'll analyze your company website to understand your business better (optional)
                 </p>
               </div>
               
