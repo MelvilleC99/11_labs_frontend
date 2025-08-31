@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, Suspense } from 'react'
+import { useEffect, useRef, Suspense, useState } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { ArrowLeft } from 'lucide-react'
@@ -10,6 +10,28 @@ function ChatContent() {
   const router = useRouter()
   const widgetContainerRef = useRef<HTMLDivElement>(null)
   const scriptLoadedRef = useRef(false)
+  
+  // Agent selection state
+  const [selectedAgent, setSelectedAgent] = useState('value_architect')
+  
+  // Agent configurations
+  const agents = {
+    value_architect: {
+      id: 'agent_01k0ryjxvrfc2a2hwp4sy6n55c',
+      name: 'Value Architect',
+      description: 'Build your core business foundation (9 questions)'
+    },
+    positioning_strategist: {
+      id: 'agent_6801k3tfx6gyfjta3qt8cfxwas6s', 
+      name: 'Positioning Strategist',
+      description: 'Define your differentiation & communication style (13 questions)'
+    },
+    growth_architect: {
+      id: 'agent_7901k3xnynzge67v88mrp64f8yv7',
+      name: 'Growth Architect', 
+      description: 'Architect your content strategy & vision (11 questions)'
+    }
+  }
 
   const name = searchParams.get('name')
   const userId = searchParams.get('userId')
@@ -133,7 +155,7 @@ function ChatContent() {
 
         // Create the widget element
         const widget = document.createElement('elevenlabs-convai')
-        widget.setAttribute('agent-id', 'agent_01k0ryjxvrfc2a2hwp4sy6n55c')
+        widget.setAttribute('agent-id', agents[selectedAgent].id)
         widget.setAttribute('dynamic-variables', JSON.stringify(userData))
 
         console.log('Widget attributes set:')
@@ -190,7 +212,7 @@ function ChatContent() {
         widgetContainerRef.current.innerHTML = ''
       }
     }
-  }, [name, userId, router])
+  }, [name, userId, router, selectedAgent]) // Added selectedAgent dependency
 
   const handleBackToLogin = () => {
     router.push('/')
@@ -238,8 +260,26 @@ function ChatContent() {
           <div className="p-4 border-b bg-gray-50 rounded-t-lg">
             <h2 className="text-lg font-medium text-gray-900">Step 2: Building Your Persona</h2>
             <p className="text-sm text-gray-600 mt-1">
-              Have a discussion with our business coach. Click the avatar below to start your personalized conversation.
+              Have a discussion with our business coach. Select an agent below to start your conversation.
             </p>
+            
+            {/* Agent Selection */}
+            <div className="mt-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Choose Your Agent:
+              </label>
+              <select 
+                value={selectedAgent}
+                onChange={(e) => setSelectedAgent(e.target.value)}
+                className="w-full p-2 border border-gray-300 rounded-md bg-white text-sm"
+              >
+                {Object.entries(agents).map(([key, agent]) => (
+                  <option key={key} value={key}>
+                    {agent.name} - {agent.description}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
           
           {/* Widget Container */}
